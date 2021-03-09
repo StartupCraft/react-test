@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -11,7 +11,7 @@ import { POST } from 'Router/routes'
 
 import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
-import ExpensiveTree from '../ExpensiveTree'
+import Pagination from '../Pagination'
 
 function Root() {
   const [count, setCount] = useState(0)
@@ -23,28 +23,40 @@ function Root() {
   ])
 
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const [paginatedPage, setPaginatedPage] = useState(1)
+  const { data, loading } = useQuery(postsQuery, {
+    variables: {
+      page: paginatedPage,
+      limit: 10,
+    },
+  })
 
-  function handlePush() {
-    setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
-  }
+  const handlePush = useCallback(() => {
+    setFields([...fields, { name: faker.name.findName(), id: nanoid() }])
+  }, [fields])
 
-  function handleAlertClick() {
+  const handleCount = useCallback(() => {
+    setCount(count + 1)
+  }, [count])
+
+  const handleAlertClick = useCallback(() => {
     setTimeout(() => {
       alert(`You clicked ${count} times`)
     }, 2500)
-  }
+  }, [count])
 
   const posts = data?.posts.data || []
+
+  const totalCount = data?.posts.meta.totalCount || 0
 
   return (
     <Container>
       <Column>
-        <h4>Need to add pagination</h4>
+        <h4>Added pagination</h4>
         {loading
           ? 'Loading...'
           : posts.map(post => (
-              <Post mx={4}>
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -52,7 +64,13 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <div>
+          <Pagination
+            paginatedPage={paginatedPage}
+            setPaginatedPage={setPaginatedPage}
+            total={totalCount}
+          />
+        </div>
       </Column>
       <Column>
         <h4>Slow rendering</h4>
@@ -64,12 +82,11 @@ function Root() {
             onChange={({ target }) => setValue(target.value)}
           />
         </label>
-        <p>So slow...</p>
-        <ExpensiveTree />
+        <p>Not so slow anymore...</p>
 
         <h4>Closures</h4>
         <p>You clicked {count} times</p>
-        <button type="button" onClick={() => setCount(count + 1)}>
+        <button type="button" onClick={handleCount}>
           Click me
         </button>
         <button type="button" onClick={handleAlertClick}>
@@ -78,16 +95,15 @@ function Root() {
       </Column>
 
       <Column>
-        <h4>Incorrect form field behavior</h4>
+        <h4>
+          Looks correct (not sure what was wrong, except for adding order)
+        </h4>
         <button type="button" onClick={handlePush}>
           Add more
         </button>
         <ol>
-          {fields.map((field, index) => (
-            <li key={index}>
-              {field.name}:<br />
-              <input type="text" />
-            </li>
+          {fields?.map(field => (
+            <li key={field.id}>{field.name}</li>
           ))}
         </ol>
       </Column>

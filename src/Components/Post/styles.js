@@ -55,3 +55,15 @@ export const Back = styled.div`
     text-decoration: underline;
   }
 `
+
+export const PostNav = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 330px;
+
+  :hover {
+    text-decoration: underline;
+  }
+
+  ${margin}
+`

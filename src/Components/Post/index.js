@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
@@ -7,7 +7,7 @@ import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
-import { ROOT } from 'Router/routes'
+import { POST, ROOT } from 'Router/routes'
 
 import {
   Back,
@@ -17,6 +17,7 @@ import {
   PostBody,
   PostComment,
   PostContainer,
+  PostNav,
 } from './styles'
 
 const SortableContainer = sortableContainer(({ children }) => (
@@ -37,7 +38,7 @@ function Post() {
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
@@ -45,8 +46,16 @@ function Post() {
   const post = data?.post || {}
 
   useEffect(() => {
-    setComments(post.comments?.data || [])
+    setComments(post.comments?.data)
   }, [post])
+
+  const handleNextPost = useCallback(() => {
+    history.push(POST(+postId + 1))
+  }, [postId])
+
+  const handlePrevPost = useCallback(() => {
+    history.push(POST(+postId - 1))
+  }, [postId])
 
   return (
     <Container>
@@ -64,17 +73,32 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <PostNav mt={30}>
+              <button
+                disabled={postId === '1'}
+                type="button"
+                onClick={handlePrevPost}
+              >
+                Prev Post
+              </button>
+              <button
+                disabled={postId === '100'}
+                type="button"
+                onClick={handleNextPost}
+              >
+                Next Post
+              </button>
+            </PostNav>
           </Column>
 
           <Column>
-            <h4>Incorrect sorting</h4>
+            <h4>Looks correct</h4>
             Comments:
-            <SortableContainer onSortEnd={handleSortEnd}>
-              {comments.map((comment, index) => (
+            <SortableContainer items={comments} onSortEnd={handleSortEnd}>
+              {comments?.map((comment, index) => (
                 <SortableItem
                   index={index}
-                  key={comment.id}
+                  key={`${comment}-${comment.body}`}
                   mb={3}
                   value={comment.body}
                 />
