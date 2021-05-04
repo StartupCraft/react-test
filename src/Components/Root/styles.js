@@ -40,3 +40,6 @@ export const PostBody = styled.div`
   overflow: hidden;
   white-space: normal;
 `
+export const PagingButton = styled.button`
+  margin: 0 2px;
+`

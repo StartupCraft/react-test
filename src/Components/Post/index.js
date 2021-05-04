@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
 import { useQuery } from '@apollo/client'
@@ -7,7 +8,7 @@ import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
-import { ROOT } from 'Router/routes'
+import { POST, ROOT } from 'Router/routes'
 
 import {
   Back,
@@ -37,7 +38,7 @@ function Post() {
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
@@ -46,7 +47,10 @@ function Post() {
 
   useEffect(() => {
     setComments(post.comments?.data || [])
-  }, [post])
+  }, [loading])
+
+  const next = parseInt(postId, 10) + 1
+  const prev = parseInt(postId, 10) - 1
 
   return (
     <Container>
@@ -58,17 +62,39 @@ function Post() {
       ) : (
         <>
           <Column>
-            <h4>Need to add next/previous links</h4>
+            {prev !== 0 && (
+              <NavLink href={POST(prev)} to={POST(prev)}>
+                Prev
+              </NavLink>
+            )}
+            &nbsp;
+            {/* of course this hard code, but i need to understand how to get totalCount here */}
+            {next < 100 && (
+              <NavLink href={POST(next)} to={POST(next)}>
+                Next
+              </NavLink>
+            )}
             <PostContainer key={post.id}>
               <h3>{post.title}</h3>
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div>
+              {prev !== 0 && (
+                <NavLink href={POST(prev)} to={POST(prev)}>
+                  Prev
+                </NavLink>
+              )}
+              &nbsp;
+              {next < 100 && (
+                <NavLink href={POST(next)} to={POST(next)}>
+                  Next
+                </NavLink>
+              )}
+            </div>
           </Column>
 
           <Column>
-            <h4>Incorrect sorting</h4>
             Comments:
             <SortableContainer onSortEnd={handleSortEnd}>
               {comments.map((comment, index) => (

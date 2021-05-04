@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -9,12 +9,21 @@ import postsQuery from 'GraphQL/Queries/posts.graphql'
 
 import { POST } from 'Router/routes'
 
-import { Column, Container, Post, PostAuthor, PostBody } from './styles'
+import {
+  Column,
+  Container,
+  PagingButton,
+  Post,
+  PostAuthor,
+  PostBody,
+} from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
 function Root() {
   const [count, setCount] = useState(0)
+  const [page, setPage] = useState(0)
+  const [totalCount, setTotalCount] = useState(0)
   const [fields, setFields] = useState([
     {
       name: faker.name.findName(),
@@ -22,29 +31,45 @@ function Root() {
     },
   ])
 
-  const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const { data, loading } = useQuery(postsQuery, { variables: { page } })
 
   function handlePush() {
-    setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
+    const newFields = [...fields]
+    newFields.push({ name: faker.name.findName(), id: nanoid() })
+    setFields(newFields)
   }
 
   function handleAlertClick() {
-    setTimeout(() => {
-      alert(`You clicked ${count} times`)
-    }, 2500)
+    alert(`You clicked ${count} times`)
   }
 
   const posts = data?.posts.data || []
 
+  useEffect(() => {
+    setTotalCount((data?.posts?.meta?.totalCount || 0) / 10)
+  }, [loading])
+
+  const getPagination = () =>
+    totalCount > 0 &&
+    [...Array(totalCount).keys()].map(pageItem => (
+      <PagingButton
+        disabled={pageItem === page}
+        key={pageItem}
+        type="button"
+        onClick={() => setPage(pageItem)}
+      >
+        {pageItem}
+      </PagingButton>
+    ))
+
   return (
     <Container>
       <Column>
-        <h4>Need to add pagination</h4>
+        <div>{getPagination()}</div>
         {loading
           ? 'Loading...'
           : posts.map(post => (
-              <Post mx={4}>
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -52,17 +77,14 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <div>{getPagination()}</div>
       </Column>
       <Column>
         <h4>Slow rendering</h4>
         <label>
           Enter something here:
           <br />
-          <input
-            value={value}
-            onChange={({ target }) => setValue(target.value)}
-          />
+          <input type="text" />
         </label>
         <p>So slow...</p>
         <ExpensiveTree />
@@ -78,7 +100,6 @@ function Root() {
       </Column>
 
       <Column>
-        <h4>Incorrect form field behavior</h4>
         <button type="button" onClick={handlePush}>
           Add more
         </button>
