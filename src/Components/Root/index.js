@@ -24,6 +24,10 @@ function Root() {
 
   const [value, setValue] = useState('')
   const { data, loading } = useQuery(postsQuery)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [postsPerPage] = useState(3)
+
+
 
   function handlePush() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
@@ -36,6 +40,17 @@ function Root() {
   }
 
   const posts = data?.posts.data || []
+  console.log(posts);
+  const pageNumbers = [];
+  for (let i =1; i<=Math.ceil(posts.length/postsPerPage); i+=1){
+    pageNumbers.push(i);
+  }
+  console.log(i)
+
+  const indexOfLastPost = currentPage*postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage ;
+  const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost)
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <Container>
@@ -43,8 +58,8 @@ function Root() {
         <h4>Need to add pagination</h4>
         {loading
           ? 'Loading...'
-          : posts.map(post => (
-              <Post mx={4}>
+          : currentPosts.map(post => (
+              <Post mx={4} >
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -52,7 +67,19 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <div>
+          <ul>
+              {
+                 pageNumbers.map(number =>(
+                  <li key ={number}>
+                    <a onClick ={() => paginate(number)} href = "#!">{number}</a>
+                  </li>
+                ))
+              }
+
+
+          </ul>
+          </div>
       </Column>
       <Column>
         <h4>Slow rendering</h4>

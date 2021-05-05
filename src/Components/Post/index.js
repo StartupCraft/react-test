@@ -11,6 +11,8 @@ import { ROOT } from 'Router/routes'
 
 import {
   Back,
+  Prev,
+  Next,
   Column,
   Container,
   PostAuthor,
@@ -35,6 +37,10 @@ function Post() {
   } = useRouteMatch()
 
   const handleClick = () => history.push(ROOT)
+  const nextClick = () =>history.push(String((Number(postId)+1)))
+  
+  const prevClick = () =>history.push(String((Number(postId)-1)))
+  
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
     setComments(arrayMove(comments, newIndex, oldIndex))
@@ -64,7 +70,13 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div>
+              <Next onClick = {nextClick}>Next</Next>
+              {(Number(postId)-1) > 0 ? <Prev onClick = {prevClick}>Prev</Prev> : 'Prev'}
+              
+              
+
+              </div>
           </Column>
 
           <Column>

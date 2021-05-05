@@ -55,3 +55,19 @@ export const Back = styled.div`
     text-decoration: underline;
   }
 `
+export const Next = styled.div`
+  color: blue;
+  cursor: pointer;
+
+  :hover {
+    text-decoration: underline;
+  }
+`
+export const Prev = styled.div`
+  color: blue;
+  cursor: pointer;
+
+  :hover {
+    text-decoration: underline;
+  }
+`
