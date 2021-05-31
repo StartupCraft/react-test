@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -21,9 +21,17 @@ function Root() {
       id: nanoid(),
     },
   ])
-
+  const pageLimit = 5
+  const [postsPage, setPostsPage] = useState(1)
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const { data, loading } = useQuery(postsQuery, {
+    variables: {
+      page: Number(postsPage),
+      limit: Number(pageLimit),
+    },
+  })
+
+  const expensiveTree = useMemo(() => <ExpensiveTree />, [])
 
   function handlePush() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
@@ -36,6 +44,8 @@ function Root() {
   }
 
   const posts = data?.posts.data || []
+  const totalPosts = data?.posts.meta.totalCount || 0
+  const totalPages = totalPosts / pageLimit
 
   return (
     <Container>
@@ -44,7 +54,7 @@ function Root() {
         {loading
           ? 'Loading...'
           : posts.map(post => (
-              <Post mx={4}>
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -52,7 +62,18 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <div>
+          {postsPage > 1 ? (
+            <button type="button" onClick={() => setPostsPage(postsPage - 1)}>
+              prev
+            </button>
+          ) : null}
+          {postsPage <= totalPages ? (
+            <button type="button" onClick={() => setPostsPage(postsPage + 1)}>
+              next
+            </button>
+          ) : null}
+        </div>
       </Column>
       <Column>
         <h4>Slow rendering</h4>
@@ -65,7 +86,7 @@ function Root() {
           />
         </label>
         <p>So slow...</p>
-        <ExpensiveTree />
+        {expensiveTree}
 
         <h4>Closures</h4>
         <p>You clicked {count} times</p>
@@ -83,8 +104,8 @@ function Root() {
           Add more
         </button>
         <ol>
-          {fields.map((field, index) => (
-            <li key={index}>
+          {fields.map(field => (
+            <li key={field.id}>
               {field.name}:<br />
               <input type="text" />
             </li>

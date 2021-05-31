@@ -33,6 +33,7 @@ function Post() {
   const {
     params: { postId },
   } = useRouteMatch()
+  const [postCurrent, setPostCurrent] = useState(postId)
 
   const handleClick = () => history.push(ROOT)
 
@@ -40,13 +41,22 @@ function Post() {
     setComments(arrayMove(comments, newIndex, oldIndex))
   }
 
-  const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
+  const { data, loading } = useQuery(postQuery, {
+    variables: { id: postCurrent },
+  })
 
   const post = data?.post || {}
 
+  const prevPost = () => {
+    setPostCurrent(Number(postCurrent) - 1)
+  }
+  const nextPost = () => {
+    setPostCurrent(Number(postCurrent) + 1)
+  }
+
   useEffect(() => {
     setComments(post.comments?.data || [])
-  }, [post])
+  }, [loading, postCurrent])
 
   return (
     <Container>
@@ -64,7 +74,16 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div>
+              {postCurrent > 1 ? (
+                <button type="button" onClick={prevPost}>
+                  Prev
+                </button>
+              ) : null}
+              <button type="button" onClick={nextPost}>
+                Next
+              </button>
+            </div>
           </Column>
 
           <Column>
