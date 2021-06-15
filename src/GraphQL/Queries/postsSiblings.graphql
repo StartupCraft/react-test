@@ -1,0 +1,9 @@
+
+query PostsSiblings($start: Int, $end: Int) {
+  posts(options: { slice: { start: $start, end: $end } }) {
+    data {
+      id,
+      title
+    }
+  }
+}
