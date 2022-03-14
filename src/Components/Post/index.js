@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
-import { sortableContainer, sortableElement } from 'react-sortable-hoc'
+import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 
 import { useQuery } from '@apollo/client'
 import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
-import { ROOT } from 'Router/routes'
+import {POST, ROOT} from 'Router/routes'
 
 import {
   Back,
@@ -17,35 +17,41 @@ import {
   PostBody,
   PostComment,
   PostContainer,
+  Button
 } from './styles'
+import {NavLink} from "react-router-dom";
+import {Skeleton} from "../Root/styles";
 
-const SortableContainer = sortableContainer(({ children }) => (
+const SortableContainerData = SortableContainer(({ children }) => (
   <div>{children}</div>
 ))
 
-const SortableItem = sortableElement(({ value }) => (
+const SortableItem = SortableElement(({ value }) => (
   <PostComment mb={2}>{value}</PostComment>
 ))
 
 function Post() {
-  const [comments, setComments] = useState([])
+  const [comments, setComments] = useState([]);
   const history = useHistory()
   const {
     params: { postId },
   } = useRouteMatch()
-
+  const [currentId, setCurrentId] = useState(parseInt(postId,10));
   const handleClick = () => history.push(ROOT)
-
+  const onNextClick = () => {
+    setCurrentId(currentId + 1)
+  }
+  const onBackClick = () => {
+    setCurrentId(currentId -1)
+  }
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments,oldIndex, newIndex))
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
-
   const post = data?.post || {}
-
   useEffect(() => {
-    setComments(post.comments?.data || [])
+    Object.keys(post).length > 0 && setComments(post.comments?.data || [])
   }, [post])
 
   return (
@@ -53,24 +59,44 @@ function Post() {
       <Column>
         <Back onClick={handleClick}>Back</Back>
       </Column>
-      {loading ? (
-        'Loading...'
-      ) : (
-        <>
-          <Column>
-            <h4>Need to add next/previous links</h4>
+      <>
+        <Column>
+          <h4>Added next/previous links</h4>
+          { loading ? (
+            <Skeleton height="180px" width='60%'/>
+          ) : (
             <PostContainer key={post.id}>
               <h3>{post.title}</h3>
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
-          </Column>
+          )}
+          <div style={{display: 'flex', width: '55%', justifyContent: 'space-between', padding:'5px'}}>
+            <Button onClick={onBackClick} disabled={currentId === 1}>
+              <NavLink href={POST(currentId)} to={POST(currentId)}>
+                Prev
+              </NavLink>
+            </Button>
+            <Button onClick={onNextClick} disabled={currentId === 100}>
+              <NavLink href={POST(currentId)} to={POST(currentId)}>
+                Next
+              </NavLink>
+            </Button>
+          </div>
+        </Column>
 
-          <Column>
-            <h4>Incorrect sorting</h4>
-            Comments:
-            <SortableContainer onSortEnd={handleSortEnd}>
+        <Column>
+          <h4>Correct sorting</h4>
+          Comments:
+          {loading ? (
+              <div>
+                <Skeleton height="90px" width='100%'/>
+                <Skeleton height="90px" width='100%'/>
+                <Skeleton height="90px" width='100%'/>
+                <Skeleton height="90px" width='100%'/>
+              </div>
+            ):
+            <SortableContainerData onSortEnd={handleSortEnd}>
               {comments.map((comment, index) => (
                 <SortableItem
                   index={index}
@@ -79,10 +105,10 @@ function Post() {
                   value={comment.body}
                 />
               ))}
-            </SortableContainer>
-          </Column>
-        </>
-      )}
+            </SortableContainerData>
+          }
+        </Column>
+      </>
     </Container>
   )
 }

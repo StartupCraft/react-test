@@ -55,3 +55,16 @@ export const Back = styled.div`
     text-decoration: underline;
   }
 `
+export const Button = styled.button`
+  background: ${props => props.disabled ? "white" : "palevioletred" };
+  color: ${props => props.disabled ? "palevioletred" : "white"};
+  cursor: ${props => props.disabled ? "unset" : "pointer"};
+  font-weight: 600;
+  padding: 3px;
+  border-radius: 5px;
+  a{
+    text-decoration: none;
+    color: inherit;
+    cursor: inherit;
+  }
+`
