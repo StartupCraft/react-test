@@ -37,12 +37,15 @@ function Post() {
     params: { postId },
   } = useRouteMatch()
   const [currentId, setCurrentId] = useState(parseInt(postId,10));
+  const onButtonClick = (id) => history.push(id)
   const handleClick = () => history.push(ROOT)
+  console.log(currentId)
+
   const onNextClick = () => {
-    setCurrentId(currentId + 1)
+    setCurrentId(prevState => prevState + 1)
   }
   const onBackClick = () => {
-    setCurrentId(currentId -1)
+    setCurrentId(prevState => prevState -1);
   }
   const handleSortEnd = ({ oldIndex, newIndex }) => {
     setComments(arrayMove(comments,oldIndex, newIndex))
@@ -53,7 +56,9 @@ function Post() {
   useEffect(() => {
     Object.keys(post).length > 0 && setComments(post.comments?.data || [])
   }, [post])
-
+  useEffect(() => {
+    onButtonClick(POST(currentId))
+  },[currentId])
   return (
     <Container>
       <Column>
@@ -73,14 +78,10 @@ function Post() {
           )}
           <div style={{display: 'flex', width: '55%', justifyContent: 'space-between', padding:'5px'}}>
             <Button onClick={onBackClick} disabled={currentId === 1}>
-              <NavLink href={POST(currentId)} to={POST(currentId)}>
                 Prev
-              </NavLink>
             </Button>
             <Button onClick={onNextClick} disabled={currentId === 100}>
-              <NavLink href={POST(currentId)} to={POST(currentId)}>
-                Next
-              </NavLink>
+              Next
             </Button>
           </div>
         </Column>

@@ -13,8 +13,7 @@ import {Column, Container, Post, PostAuthor, PostBody, Skeleton} from './styles'
 import ExpensiveTree from '../ExpensiveTree'
 import {Button} from "../Post/styles";
 import {LINKS_PER_PAGE} from "../../constants";
-
-
+import {debounce} from "../../utils";
 
 
 function Root() {
@@ -30,7 +29,7 @@ function Root() {
   const [pages, setPages] = useState(1);
   const onNextClick = () => setPages(pages + 1);
   const onBackClick = () => setPages(pages - 1)
-
+  console.log('value')
   const {data,  loading } =  useQuery(postsQuery,{variables:{page: pages, limit: LINKS_PER_PAGE}})
   const lastPage = Math.ceil(data?.posts.meta.totalCount / LINKS_PER_PAGE)
   function handlePush() {
@@ -40,14 +39,20 @@ function Root() {
     ])
   }
 
-  function handleAlertClick() {
-    setTimeout(() => {
+  const handleAlertClick = useCallback(() => {
+    const timer = setTimeout(() => {
       alert(`You clicked ${count} times`)
     }, 500)
-  }
+    return() => {
+      clearTimeout(timer)
+    }
+  },[count])
+
   const handleCount = useCallback(() => {
-    setCount(count + 1);
+    setCount( count + 1);
   },[count]);
+  const handleChangeValue = useCallback(debounce((text) => setValue(text)),[]);
+
   const posts = data?.posts.data || []
   return (
     <Container>
@@ -76,8 +81,7 @@ function Root() {
           <br/>
           <form>
             <input
-              value={value ?? ''}
-              onChange={(event) => setValue(event.target.value)}
+              onChange={(event) => handleChangeValue(event.target.value)}
             />
           </form>
         </label>
