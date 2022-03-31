@@ -7,7 +7,7 @@ import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
-import { ROOT } from 'Router/routes'
+import { POST, ROOT } from 'Router/routes'
 
 import {
   Back,
@@ -37,7 +37,7 @@ function Post() {
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
@@ -45,7 +45,9 @@ function Post() {
   const post = data?.post || {}
 
   useEffect(() => {
-    setComments(post.comments?.data || [])
+    if (post.comments?.data) {
+      setComments(post.comments.data)
+    }
   }, [post])
 
   return (
@@ -64,7 +66,24 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  history.push(POST(+postId - 1))
+                }}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  history.push(POST(+postId + 1))
+                }}
+              >
+                Next
+              </button>
+            </div>
           </Column>
 
           <Column>
