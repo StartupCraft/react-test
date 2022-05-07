@@ -7,7 +7,8 @@ import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
-import { ROOT } from 'Router/routes'
+import { POST, ROOT } from 'Router/routes'
+import { PaginationButton } from '../Root/styles'
 
 import {
   Back,
@@ -33,19 +34,27 @@ function Post() {
   const {
     params: { postId },
   } = useRouteMatch()
+  const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
+  const post = data?.post || {}
+  const minPostId = 1;
+  const maxPostId = 100;
 
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
-  const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
+  const handlePrevPost = () => {
+    history.push(POST(+postId - 1))
+  }
 
-  const post = data?.post || {}
+  const handleNextPost = () => {
+    history.push(POST(+postId + 1))
+  }
 
   useEffect(() => {
-    setComments(post.comments?.data || [])
+    post.comments?.data && setComments(post.comments.data || [])
   }, [post])
 
   return (
@@ -64,7 +73,22 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div>
+              <PaginationButton
+                isDisabled={+postId === minPostId}
+                disabled={+postId === minPostId}
+                onClick={handlePrevPost}
+              >
+                Previous post
+              </PaginationButton>
+              <PaginationButton
+                isDisabled={+postId === maxPostId}
+                disabled={+postId === maxPostId}
+                onClick={handleNextPost}
+              >
+                Next post
+              </PaginationButton>
+            </div>
           </Column>
 
           <Column>

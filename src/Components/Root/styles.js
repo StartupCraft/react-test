@@ -4,7 +4,7 @@ import { margin } from '@styled-system/space'
 export const Container = styled.div`
   display: flex;
   flex: 1;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   overflow: hidden;
   justify-content: space-between;
@@ -39,4 +39,9 @@ export const PostBody = styled.div`
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: normal;
+`
+
+export const PaginationButton = styled.button`
+  cursor: pointer;
+  background: ${({ isDisabled }) => (isDisabled ? 'white' : 'lightgray')};
 `
