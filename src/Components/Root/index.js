@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -22,6 +22,8 @@ function Root() {
     },
   ])
 
+  const countRef = useRef()
+
   const [value, setValue] = useState('')
   const { data, loading } = useQuery(postsQuery)
 
@@ -29,9 +31,13 @@ function Root() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
   }
 
+  useEffect(() => {
+    countRef.current = count
+  }, [count])
+
   function handleAlertClick() {
     setTimeout(() => {
-      alert(`You clicked ${count} times`)
+      alert(`You clicked ${countRef.current} times`)
     }, 2500)
   }
 
