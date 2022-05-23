@@ -33,3 +33,5 @@ fragmentTypes.json
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+
+.lh
