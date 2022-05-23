@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -9,11 +9,22 @@ import postsQuery from 'GraphQL/Queries/posts.graphql'
 
 import { POST } from 'Router/routes'
 
-import { Column, Container, Post, PostAuthor, PostBody } from './styles'
+import {
+  Column,
+  Container,
+  PageButton,
+  Post,
+  PostAuthor,
+  PostBody,
+  Row,
+} from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
+const LIMIT = 10
+
 function Root() {
+  const [activePage, setActivePage] = useState(1)
   const [count, setCount] = useState(0)
   const [fields, setFields] = useState([
     {
@@ -25,11 +36,28 @@ function Root() {
   const countRef = useRef()
 
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const { data, loading } = useQuery(postsQuery, {
+    variables: {
+      page: activePage,
+      limit: LIMIT,
+    },
+  })
+
+  const pages = useMemo(() => {
+    const totalCount = data?.posts.meta.totalCount
+    if (!totalCount) {
+      return []
+    }
+    return [...new Array(Math.ceil(data?.posts.meta.totalCount / LIMIT))].map(
+      (item, index) => index + 1,
+    )
+  }, [data?.posts.meta.totalCount])
 
   function handlePush() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
   }
+
+  console.log(pages)
 
   useEffect(() => {
     countRef.current = count
@@ -50,7 +78,7 @@ function Root() {
         {loading
           ? 'Loading...'
           : posts.map(post => (
-              <Post mx={4}>
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -58,7 +86,17 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <Row>
+          {pages.map(page => (
+            <PageButton
+              isActive={page === activePage}
+              type="button"
+              onClick={() => setActivePage(page)}
+            >
+              {page}
+            </PageButton>
+          ))}
+        </Row>
       </Column>
       <Column>
         <h4>Slow rendering</h4>

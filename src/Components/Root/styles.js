@@ -15,6 +15,14 @@ export const Column = styled.div`
   min-height: 100vh;
   padding: 16px;
 `
+export const Row = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`
+
+export const PageButton = styled.button`
+  color: ${props => props.isActive && 'blue'};
+`
 
 export const Post = styled.div.attrs({
   mx: 0,
