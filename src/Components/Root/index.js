@@ -83,8 +83,8 @@ function Root() {
           Add more
         </button>
         <ol>
-          {fields.map((field, index) => (
-            <li key={index}>
+          {fields.map(field => (
+            <li key={field.id}>
               {field.name}:<br />
               <input type="text" />
             </li>
