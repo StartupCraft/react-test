@@ -12,6 +12,8 @@ import { POST } from 'Router/routes'
 import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
+import Pagination from '../Pagination/index'
+import { getCurrentPosts } from '../Pagination/utils'
 
 function Root() {
   const [count, setCount] = useState(0)
@@ -24,6 +26,7 @@ function Root() {
 
   const [value, setValue] = useState('')
   const { data, loading } = useQuery(postsQuery)
+  const [currentPage, setCurrentPage] = useState(1)
 
   function handlePush() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
@@ -35,16 +38,22 @@ function Root() {
     }, 2500)
   }
 
+  const paginate = pageNumber => {
+    setCurrentPage(pageNumber)
+  }
+
   const posts = data?.posts.data || []
+
+  const postsPerPage = 1
+  const currentPosts = getCurrentPosts(postsPerPage, currentPage, posts)
 
   return (
     <Container>
       <Column>
-        <h4>Need to add pagination</h4>
         {loading
           ? 'Loading...'
-          : posts.map(post => (
-              <Post mx={4}>
+          : currentPosts.map(post => (
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -52,7 +61,12 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <Pagination
+          currentPage={currentPage}
+          paginate={paginate}
+          postsPerPage={postsPerPage}
+          totalPosts={posts.length}
+        />
       </Column>
       <Column>
         <h4>Slow rendering</h4>
