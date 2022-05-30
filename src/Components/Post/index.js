@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
 import { useQuery } from '@apollo/client'
@@ -7,7 +8,7 @@ import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
-import { ROOT } from 'Router/routes'
+import { POST, ROOT } from 'Router/routes'
 
 import {
   Back,
@@ -64,7 +65,34 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: '400px',
+              }}
+            >
+              <div>
+                {postId > 1 && (
+                  <NavLink
+                    href={POST(Number(postId) - 1)}
+                    to={POST(Number(postId) - 1)}
+                  >
+                    Back
+                  </NavLink>
+                )}
+              </div>
+              <div>
+                {postId < 100 && (
+                  <NavLink
+                    href={POST(Number(postId) + 1)}
+                    to={POST(Number(postId) + 1)}
+                  >
+                    Next
+                  </NavLink>
+                )}
+              </div>
+            </div>
           </Column>
 
           <Column>
