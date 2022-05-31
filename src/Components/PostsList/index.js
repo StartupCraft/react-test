@@ -9,13 +9,13 @@ import { FetchMoreButton, Post, PostAuthor, PostBody } from './styles'
 const PostList = ({ loading, posts, onLoadMore }) => (
   <>
     <h4>Need to add pagination</h4>
-    {posts.map(post => (
-      <Post key={post.id} mx={4}>
-        <NavLink href={POST(post.id)} to={POST(post.id)}>
-          {post.title}
+    {posts.map(({ id, title, user, body }) => (
+      <Post key={id} mx={4}>
+        <NavLink href={POST(id)} to={POST(id)}>
+          {title}
         </NavLink>
-        <PostAuthor>by {post.user.name}</PostAuthor>
-        <PostBody>{post.body}</PostBody>
+        <PostAuthor>by {user.name}</PostAuthor>
+        <PostBody>{body}</PostBody>
       </Post>
     ))}
     <div>

@@ -70,13 +70,8 @@ function PostPage() {
             <h4>Incorrect sorting</h4>
             Comments:
             <SortableContainer onSortEnd={handleSortEnd}>
-              {comments.map((comment, index) => (
-                <SortableItem
-                  index={index}
-                  key={comment.id}
-                  mb={3}
-                  value={comment.body}
-                />
+              {comments.map(({ id, body }) => (
+                <SortableItem index={id} key={id} mb={3} value={body} />
               ))}
             </SortableContainer>
           </Column>
