@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 
-function ExpensiveTree() {
-  const now = performance.now()
+function ExpensiveTree () {
+  const now = performance.now();
   while (performance.now() - now < 100) {
     // Emulate some expensive calculations which takes 300ms
   }
-  return <div />
+  return <div />;
 }
 
-export default ExpensiveTree
+export default ExpensiveTree;
