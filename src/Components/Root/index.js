@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
-import faker from 'faker'
-import { nanoid } from 'nanoid'
+
+import Counter from 'Components/Counter'
+import FastRendering from 'Components/FastRendering'
+import Form from 'Components/Form'
 
 import postsQuery from 'GraphQL/Queries/posts.graphql'
 
@@ -14,27 +16,7 @@ import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 import ExpensiveTree from '../ExpensiveTree'
 
 function Root() {
-  const [count, setCount] = useState(0)
-  const [fields, setFields] = useState([
-    {
-      name: faker.name.findName(),
-      id: nanoid(),
-    },
-  ])
-
-  const [value, setValue] = useState('')
   const { data, loading } = useQuery(postsQuery)
-
-  function handlePush() {
-    setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
-  }
-
-  function handleAlertClick() {
-    setTimeout(() => {
-      alert(`You clicked ${count} times`)
-    }, 2500)
-  }
-
   const posts = data?.posts.data || []
 
   return (
@@ -55,41 +37,17 @@ function Root() {
         <div>Pagination here</div>
       </Column>
       <Column>
-        <h4>Slow rendering</h4>
-        <label>
-          Enter something here:
-          <br />
-          <input
-            value={value}
-            onChange={({ target }) => setValue(target.value)}
-          />
-        </label>
-        <p>So slow...</p>
+        <FastRendering />
+        <p>
+          So <s>slow</s>💨...
+        </p>
         <ExpensiveTree />
 
-        <h4>Closures</h4>
-        <p>You clicked {count} times</p>
-        <button type="button" onClick={() => setCount(count + 1)}>
-          Click me
-        </button>
-        <button type="button" onClick={handleAlertClick}>
-          Show alert
-        </button>
+        <Counter />
       </Column>
 
       <Column>
-        <h4>Incorrect form field behavior</h4>
-        <button type="button" onClick={handlePush}>
-          Add more
-        </button>
-        <ol>
-          {fields.map((field, index) => (
-            <li key={index}>
-              {field.name}:<br />
-              <input type="text" />
-            </li>
-          ))}
-        </ol>
+        <Form />
       </Column>
     </Container>
   )
