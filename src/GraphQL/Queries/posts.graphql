@@ -1,5 +1,5 @@
-#import "GraphQL/Fragments/BasePost.graphql"
-#import "GraphQL/Fragments/PageMetadata.graphql"
+#import "graphQL/Fragments/BasePost.graphql"
+#import "graphQL/Fragments/PageMetadata.graphql"
 
 query Posts($page: Int, $limit: Int) {
   posts(options: { paginate: { page: $page, limit: $limit } }) {

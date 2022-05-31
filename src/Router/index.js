@@ -1,6 +1,6 @@
-import Root from 'Components/App'
-import Layout from 'Components/Layout'
-import Post from 'Components/Post'
+import Layout from 'components/Layout'
+import Root from 'pages/HomePage'
+import Post from 'pages/PostPage'
 
 import { POST, ROOT } from './routes'
 

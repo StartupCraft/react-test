@@ -1,4 +1,4 @@
-#import "GraphQL/Fragments/Post.graphql"
+#import "graphQL/Fragments/Post.graphql"
 
 query Post($id: ID!) {
   post(id: $id) {

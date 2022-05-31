@@ -4,8 +4,7 @@ import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
 import { useQuery } from '@apollo/client'
 import arrayMove from 'array-move'
-
-import postQuery from 'GraphQL/Queries/post.graphql'
+import postQuery from 'graphQL/Queries/post.graphql'
 
 import { ROOT } from 'Router/routes'
 
@@ -27,7 +26,7 @@ const SortableItem = sortableElement(({ value }) => (
   <PostComment mb={2}>{value}</PostComment>
 ))
 
-function Post() {
+function PostPage() {
   const [comments, setComments] = useState([])
   const history = useHistory()
   const {
@@ -87,4 +86,4 @@ function Post() {
   )
 }
 
-export default Post
+export default PostPage
