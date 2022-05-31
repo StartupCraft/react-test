@@ -56,7 +56,6 @@ function Post ({ NumOfPosts = 10 }) {
       e.preventDefault();
       history.push(`/posts/${nextPageIndex}`);
     }
-
   }
 
   function handlePrev (e) {

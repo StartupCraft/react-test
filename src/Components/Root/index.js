@@ -11,10 +11,7 @@ import { POST } from 'Router/routes';
 
 import { Column, Container, Post, PostAuthor, PostBody } from './styles';
 
-import ExpensiveTree from '../ExpensiveTree';
-
 const ITEM_PER_PAGE = 3;
-const DEFAULT_PAGE_NUMBER = 0;
 
 function Root () {
   const [count, setCount] = useState(0);
