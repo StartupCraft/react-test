@@ -1,8 +1,8 @@
 import React from 'react'
 import { render } from 'react-dom'
 
-import Container from './Container'
+import Root from './Root'
 
 const root = document.getElementById('root')
 
-render(<Container />, root)
+render(<Root />, root)

@@ -15,7 +15,7 @@ import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
-function Root() {
+function App() {
   const { data, loading } = useQuery(postsQuery)
   const posts = data?.posts.data || []
 
@@ -53,4 +53,4 @@ function Root() {
   )
 }
 
-export default Root
+export default App
