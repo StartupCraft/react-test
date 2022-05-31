@@ -6,7 +6,7 @@ import { POST } from 'Router/routes'
 
 import { FetchMoreButton, Post, PostAuthor, PostBody } from './styles'
 
-const PostList = ({ loading, posts, totalCount }) => (
+const PostList = ({ loading, posts, onLoadMore }) => (
   <>
     <h4>Need to add pagination</h4>
     {posts.map(post => (
@@ -19,7 +19,9 @@ const PostList = ({ loading, posts, totalCount }) => (
       </Post>
     ))}
     <div>
-      <FetchMoreButton disabled={loading}>{loading ? 'Loading...' : 'Load more'}</FetchMoreButton>
+      <FetchMoreButton disabled={loading} onClick={onLoadMore}>
+        {loading ? 'Loading...' : 'Load more'}
+      </FetchMoreButton>
     </div>
   </>
 )
@@ -36,13 +38,13 @@ PostList.propTypes = {
       }),
     }),
   ),
-  totalCount: PropsTypes.number,
+  onLoadMore: PropsTypes.func,
 }
 
 PostList.defaultProps = {
   loading: false,
   posts: [],
-  totalCount: 0,
+  onLoadMore: () => {},
 }
 
 export default PostList

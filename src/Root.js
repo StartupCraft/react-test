@@ -20,11 +20,13 @@ export default function Container() {
   })
 
   return (
-    <ApolloProvider client={client}>
-      <BrowserRouter>
-        <Normalize />
-        {renderRoutes(routes)}
-      </BrowserRouter>
-    </ApolloProvider>
+    <React.StrictMode>
+      <ApolloProvider client={client}>
+        <BrowserRouter>
+          <Normalize />
+          {renderRoutes(routes)}
+        </BrowserRouter>
+      </ApolloProvider>
+    </React.StrictMode>
   )
 }
