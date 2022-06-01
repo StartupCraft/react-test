@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
 import { useQuery } from '@apollo/client'
 import arrayMove from 'array-move'
+
+import NextPrev from 'Components/NextPrev'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
 
@@ -35,18 +37,20 @@ function Post() {
   } = useRouteMatch()
 
   const handleClick = () => history.push(ROOT)
-
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
-  }
+  const handleSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      setComments(arrayMove(comments, newIndex, oldIndex))
+    },
+    [comments],
+  )
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
 
   const post = data?.post || {}
 
   useEffect(() => {
-    setComments(post.comments?.data || [])
-  }, [post])
+    setComments(post?.comments?.data || [])
+  }, [post?.comments?.data])
 
   return (
     <Container>
@@ -64,7 +68,7 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <NextPrev postId={postId} />
           </Column>
 
           <Column>
