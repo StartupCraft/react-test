@@ -19,6 +19,7 @@ import {
   PostComment,
   PostContainer,
 } from './styles';
+import { fa, tr } from "faker/lib/locales";
 
 const SortableContainer = sortableContainer(({ children }) => (
   <div>{ children }</div>
@@ -30,6 +31,7 @@ const SortableItem = sortableElement(({ value }) => (
 
 function Post ({ NumOfPosts = 10 }) {
   const [comments, setComments] = useState([]);
+  const [postState, setPostState] = useState({});
   const history = useHistory();
   const { params: { postId } } = useRouteMatch();
 
@@ -43,12 +45,24 @@ function Post ({ NumOfPosts = 10 }) {
 
   const post = data?.post || {};
 
+  /**
+   * update: using JSON.stringify() is not secure here as the the objects with 
+   * the same attributes but ordered differently should be treated as equal
+   */
   // prevent infinite rendering since object is passed to useEffect as a dependency
-  const postJson = JSON.stringify(post);
+  // const postJson = JSON.stringify(post);
+
+  const postObjIsReady = !(Object.keys(post).length === 0);
 
   useEffect(() => {
-    setComments(post.comments?.data || []);
-  }, [postJson]);
+    if (postObjIsReady)
+      setPostState(post);
+  }, [postObjIsReady, post.id]);
+
+  useEffect(() => {
+    if (postObjIsReady)
+      setComments(post.comments?.data || []);
+  }, [postState]);
 
   function handleNext (e) {
     const nextPageIndex = Number(postId) + 1;
