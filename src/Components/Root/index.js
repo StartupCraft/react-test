@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -15,6 +15,7 @@ import ExpensiveTree from "Components/ExpensiveTree"
 const ITEM_PER_PAGE = 3
 
 function Root () {
+  // state setups
   const [count, setCount] = useState(0)
   const [fields, setFields] = useState([
     {
@@ -24,18 +25,25 @@ function Root () {
   ])
   const [value, setValue] = useState('')
   const { data, loading } = useQuery(postsQuery)
+  const countRef = useRef(0)
 
-  // pagination
+
+  // classical hooks closure problem, solved by ref
+  // useRef keeps track of the same reference. the value of the reference may change
+  countRef.current = count
+
+  function handleAlertClick () {
+    setTimeout(() => {
+      alert(`You clicked ${countRef.current} times`)
+    }, 1500)
+  }
+
+
+  // pagination with useQuery
   const [curPageNum, setCurPageNum] = useState(0)
 
   function handlePush () {
     setFields(prevState => [{ name: faker.name.findName(), id: nanoid() }, ...fields])
-  }
-
-  function handleAlertClick () {
-    setTimeout(() => {
-      alert(`You clicked ${count} times`)
-    }, 1500)
   }
 
   function handlePage (index) {

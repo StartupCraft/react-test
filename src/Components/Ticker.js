@@ -14,7 +14,7 @@ const Container = styled.div`
   text-align: center;
 `
 
-function Ticker() {
+function Ticker () {
   const testStart = useRef(DateTime.local())
   const [time, setTime] = useState(
     DateTime.local().diff(testStart.current).toFormat('hh:mm:ss'),
