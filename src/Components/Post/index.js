@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
+import { NavLink } from 'react-router-dom'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
 import { useQuery } from '@apollo/client'
 import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
+import postsQuery from 'GraphQL/Queries/posts.graphql'
 
-import { ROOT } from 'Router/routes'
+import { POST, ROOT } from 'Router/routes'
 
 import {
   Back,
@@ -30,23 +32,41 @@ const SortableItem = sortableElement(({ value }) => (
 function Post() {
   const [comments, setComments] = useState([])
   const history = useHistory()
-  const {
-    params: { postId },
-  } = useRouteMatch()
+  const { params } = useRouteMatch()
+  const postId = parseInt(params.postId, 10)
 
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
+  const postsQueryResult = useQuery(postsQuery)
+  const maxPostId = postsQueryResult.data?.posts.meta.totalCount || postId
 
   const post = data?.post || {}
 
   useEffect(() => {
-    setComments(post.comments?.data || [])
+    if (post.comments) {
+      setComments(post.comments.data)
+    }
   }, [post])
+
+  if (postId > maxPostId) {
+    return (
+      <Container>
+        <Column>
+          <Back onClick={handleClick}>Back</Back>
+        </Column>
+        <h3>
+          There is no post with ID: {postId}
+          <br />
+          Post ID should be lower then {maxPostId}
+        </h3>
+      </Container>
+    )
+  }
 
   return (
     <Container>
@@ -64,11 +84,23 @@ function Post() {
               <PostAuthor>by {post.user.name}</PostAuthor>
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
-            <div>Next/prev here</div>
+            <div>
+              {postId > 1 && (
+                <NavLink href={POST(postId - 1)} to={POST(postId - 1)}>
+                  Prev post
+                </NavLink>
+              )}
+              <br />
+              {postId < maxPostId && (
+                <NavLink href={POST(postId + 1)} to={POST(postId + 1)}>
+                  Next post
+                </NavLink>
+              )}
+            </div>
           </Column>
 
           <Column>
-            <h4>Incorrect sorting</h4>
+            <h4>Correct sorting</h4>
             Comments:
             <SortableContainer onSortEnd={handleSortEnd}>
               {comments.map((comment, index) => (

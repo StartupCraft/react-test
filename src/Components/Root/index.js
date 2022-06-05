@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -13,29 +13,38 @@ import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
+function createUserField() {
+  return {
+    name: faker.name.findName(),
+    id: nanoid(),
+  }
+}
+
 function Root() {
   const [count, setCount] = useState(0)
-  const [fields, setFields] = useState([
-    {
-      name: faker.name.findName(),
-      id: nanoid(),
-    },
-  ])
+  const countRef = useRef(count)
+  countRef.current = count
+  const [fields, setFields] = useState([createUserField()])
 
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const [limit, setLimit] = useState(5)
+  const [page, setPage] = useState(1)
+  const { data, loading } = useQuery(postsQuery, {
+    variables: { limit, page },
+  })
 
   function handlePush() {
-    setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
+    setFields([createUserField(), ...fields])
   }
 
   function handleAlertClick() {
     setTimeout(() => {
-      alert(`You clicked ${count} times`)
+      alert(`You clicked ${countRef.current} times`)
     }, 2500)
   }
 
   const posts = data?.posts.data || []
+  const totalPages = data ? data.posts.meta.totalCount / limit : 1
 
   return (
     <Container>
@@ -44,18 +53,50 @@ function Root() {
         {loading
           ? 'Loading...'
           : posts.map(post => (
-              <Post mx={4}>
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
+                <p>{post.id}</p>
                 <PostAuthor>by {post.user.name}</PostAuthor>
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+        <div>
+          <div>
+            <label htmlFor="posts-select">Posts per page:</label>
+            <select
+              id="posts-select"
+              value={limit}
+              onChange={event => setLimit(parseInt(event.target.value, 10))}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+            </select>
+          </div>
+          <div>
+            <p>
+              Page {page} of {totalPages}
+            </p>
+            <button
+              disabled={page === 1}
+              type="button"
+              onClick={() => setPage(page - 1)}
+            >
+              Prev page
+            </button>
+            <button
+              disabled={totalPages === page}
+              type="button"
+              onClick={() => setPage(page + 1)}
+            >
+              Next page
+            </button>
+          </div>
+        </div>
       </Column>
       <Column>
-        <h4>Slow rendering</h4>
+        <h4>Fast rendering</h4>
         <label>
           Enter something here:
           <br />
@@ -64,7 +105,7 @@ function Root() {
             onChange={({ target }) => setValue(target.value)}
           />
         </label>
-        <p>So slow...</p>
+        <p>So fast...</p>
         <ExpensiveTree />
 
         <h4>Closures</h4>
@@ -78,14 +119,14 @@ function Root() {
       </Column>
 
       <Column>
-        <h4>Incorrect form field behavior</h4>
+        <h4>Correct form field behavior</h4>
         <button type="button" onClick={handlePush}>
           Add more
         </button>
         <ol>
-          {fields.map((field, index) => (
-            <li key={index}>
-              {field.name}:<br />
+          {fields.map(({ name, id }) => (
+            <li key={id}>
+              {name}:<br />
               <input type="text" />
             </li>
           ))}
