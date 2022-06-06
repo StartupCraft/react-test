@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState ,useEffect} from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -13,17 +13,28 @@ import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
+const limit  =5;
+
 function Root() {
   const [count, setCount] = useState(0)
+
   const [fields, setFields] = useState([
     {
       name: faker.name.findName(),
       id: nanoid(),
     },
   ])
+  const [page, setPage] = useState(1)
 
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const { loading, data, fetchMore } = useQuery(postsQuery,  {
+    variables: {
+      limit ,
+      offset :0
+    }
+  })
+
+
 
   function handlePush() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
@@ -35,6 +46,23 @@ function Root() {
     }, 2500)
   }
 
+  const handlePagination = (dir) => () => {
+    const direction = {
+      ['next']: (stateData) => stateData + 1,
+      ['prev']: (stateData) => stateData - 1
+    }
+    setPage(prev => {
+      fetchMore({
+        limit,
+        page:  direction[dir](prev)
+      })
+      return direction[dir](prev)
+    })
+  }
+
+
+  const pages = data?.posts.meta.totalCount / limit || 0
+
   const posts = data?.posts.data || []
 
   return (
@@ -44,7 +72,7 @@ function Root() {
         {loading
           ? 'Loading...'
           : posts.map(post => (
-              <Post mx={4}>
+              <Post key={post.id} mx={4}>
                 <NavLink href={POST(post.id)} to={POST(post.id)}>
                   {post.title}
                 </NavLink>
@@ -52,7 +80,9 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+
+        <button disabled={page === 1} type='button' onClick={handlePagination('prev')}>Prev</button>
+        <button disabled={page === pages} type='button' onClick={handlePagination('next')}>Next</button>
       </Column>
       <Column>
         <h4>Slow rendering</h4>
