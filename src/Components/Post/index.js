@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
-import PropTypes from 'prop-types'
 
 import { useQuery } from '@apollo/client'
 import arrayMove from 'array-move'
@@ -29,7 +28,7 @@ const SortableItem = sortableElement(({ value }) => (
   <PostComment mb={2}>{value}</PostComment>
 ))
 
-function Post ({ NumOfPosts = 10 }) {
+function Post () {
   const [comments, setComments] = useState([])
   const [postState, setPostState] = useState({})
   const history = useHistory()
@@ -38,19 +37,20 @@ function Post ({ NumOfPosts = 10 }) {
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
 
   const post = data?.post || {}
 
-  /**
-   * update: using JSON.stringify() is not secure here as the the objects with 
-   * the same attributes but ordered differently should be treated as equal
-   */
-  // prevent infinite rendering since object is passed to useEffect as a dependency
-  // const postJson = JSON.stringify(post);
+  function handleNext (e) {
+    history.push(`/posts/${Number(post.id) + 1}`)
+  }
+
+  function handlePrev (e) {
+    history.push(`/posts/${Number(post.id) - 1}`)
+  }
 
   const postObjIsReady = !(Object.keys(post).length === 0)
 
@@ -60,25 +60,9 @@ function Post ({ NumOfPosts = 10 }) {
   }, [postObjIsReady, post.id])
 
   useEffect(() => {
-    if (postObjIsReady)
-      setComments(post.comments?.data || [])
+    setComments(post.comments?.data || [])
   }, [postState])
 
-  function handleNext (e) {
-    const nextPageIndex = Number(postId) + 1
-    if (nextPageIndex <= NumOfPosts) {
-      e.preventDefault()
-      history.push(`/posts/${nextPageIndex}`)
-    }
-  }
-
-  function handlePrev (e) {
-    const prevPageIndex = Number(postId) - 1
-    if (prevPageIndex >= 1) {
-      e.preventDefault()
-      history.push(`/posts/${prevPageIndex}`)
-    }
-  }
 
   return (
     <Container>
@@ -131,10 +115,6 @@ function Post ({ NumOfPosts = 10 }) {
       )}
     </Container>
   )
-}
-
-Post.propTypes = {
-  NumOfPosts: PropTypes.number.isRequired,
 }
 
 export default Post
