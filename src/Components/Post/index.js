@@ -6,6 +6,7 @@ import { useQuery } from '@apollo/client'
 import arrayMove from 'array-move'
 
 import postQuery from 'GraphQL/Queries/post.graphql'
+import totalCountQuery from "GraphQL/Queries/totalCount.graphql"
 
 import { ROOT } from 'Router/routes'
 
@@ -40,15 +41,20 @@ function Post () {
   }
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
+  const { data: metaData, loading: metaDataLoading } = useQuery(totalCountQuery)
+
+  const totalCount = metaData?.posts.meta.totalCount
 
   const post = useMemo(() => data?.post || {}, [data?.post.id])
 
   function handleNext (e) {
-    history.push(`/posts/${Number(post.id) + 1}`)
+    if (Number(postId) < totalCount)
+      history.push(`/posts/${Number(postId) + 1}`)
   }
 
   function handlePrev (e) {
-    history.push(`/posts/${Number(post.id) - 1}`)
+    if (Number(postId) > 1)
+      history.push(`/posts/${Number(postId) - 1}`)
   }
 
   useEffect(() => {
@@ -60,7 +66,7 @@ function Post () {
       <Column>
         <Back onClick={handleClick}>Back</Back>
       </Column>
-      {loading ? (
+      {loading || metaDataLoading ? (
         'Loading...'
       ) : (
         <>
