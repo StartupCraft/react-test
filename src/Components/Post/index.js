@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 
@@ -30,7 +30,6 @@ const SortableItem = sortableElement(({ value }) => (
 
 function Post () {
   const [comments, setComments] = useState([])
-  const [postState, setPostState] = useState({})
   const history = useHistory()
   const { params: { postId } } = useRouteMatch()
 
@@ -42,7 +41,7 @@ function Post () {
 
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
 
-  const post = data?.post || {}
+  const post = useMemo(() => data?.post || {}, [data?.post.id])
 
   function handleNext (e) {
     history.push(`/posts/${Number(post.id) + 1}`)
@@ -52,17 +51,9 @@ function Post () {
     history.push(`/posts/${Number(post.id) - 1}`)
   }
 
-  const postObjIsReady = !(Object.keys(post).length === 0)
-
-  useEffect(() => {
-    if (postObjIsReady)
-      setPostState(post)
-  }, [postObjIsReady, post.id])
-
   useEffect(() => {
     setComments(post.comments?.data || [])
-  }, [postState])
-
+  }, [post])
 
   return (
     <Container>
