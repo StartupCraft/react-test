@@ -45,7 +45,7 @@ function Post () {
 
   const totalCount = metaData?.posts.meta.totalCount
 
-  const post = useMemo(() => data?.post || {}, [data?.post.id])
+  const post = useMemo(() => data?.post || {}, [data])
 
   function handleNext (e) {
     if (Number(postId) < totalCount)
