@@ -1,0 +1,9 @@
+#import "GraphQL/Fragments/PageMetadata.graphql"
+
+query totalCount($page: Int, $limit: Int) {
+  posts(options: { paginate: { page: $page, limit: $limit } }) {
+    meta {
+      ...PageMetadata
+    }
+  }
+}

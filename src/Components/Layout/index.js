@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 
 import Ticker from '../Ticker'
 
-function Layout({ route }) {
+function Layout ({ route }) {
   return (
     <>
       <Ticker />
