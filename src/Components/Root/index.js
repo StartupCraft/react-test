@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
@@ -13,12 +13,13 @@ import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
-// JP - 06/21/2022
 // Because data is missing from Post regarding what the next/prev id is from the server, I opted to pass the posts data to the post via it's state. I can then lookup the next/prev id from the returned list.
 // This was the only solution I could think of that wouldn't cause a bad experience by clicking next and finding no post found (due to post being deleted or db id skipping)
-
+// Used state to fix closure issue with show alert, alternate solution would be useRef but I thought this was cleaner and offered better user feedback
 function Root() {
   const [count, setCount] = useState(0)
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertEnabled, setAlertEnabled] = useState(true)
   const [fields, setFields] = useState([
     {
       name: faker.name.findName(),
@@ -33,9 +34,19 @@ function Root() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
   }
 
-  function handleAlertClick() {
-    setTimeout(() => {
+  useEffect(() => {
+    if (showAlert)
+    {
+      setShowAlert(false)
       alert(`You clicked ${count} times`)
+      setAlertEnabled(true)
+    }
+  })
+
+  function handleAlertClick() {
+    setAlertEnabled(false)
+    setTimeout(() => {
+      setShowAlert(true)
     }, 2500)
   }
 
@@ -84,8 +95,8 @@ function Root() {
         <button type="button" onClick={() => setCount(count + 1)}>
           Click me
         </button>
-        <button type="button" onClick={handleAlertClick}>
-          Show alert
+        <button disabled={!alertEnabled} type="button" onClick={handleAlertClick}>
+          {alertEnabled ? 'Show alert...' : 'Processing...'}
         </button>
       </Column>
 
