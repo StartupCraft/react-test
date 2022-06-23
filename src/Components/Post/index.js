@@ -1,89 +1,67 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useHistory, useRouteMatch } from 'react-router'
-import { sortableContainer, sortableElement } from 'react-sortable-hoc'
-
+import { useLocation } from 'react-router-dom'
 import { useQuery } from '@apollo/client'
-import arrayMove from 'array-move'
-
 import postQuery from 'GraphQL/Queries/post.graphql'
-
 import { ROOT } from 'Router/routes'
+import PostDisplay from './PostDisplay'
+import { Back, Centered, Column, Container } from './styles'
 
-import {
-  Back,
-  Column,
-  Container,
-  PostAuthor,
-  PostBody,
-  PostComment,
-  PostContainer,
-} from './styles'
-
-const SortableContainer = sortableContainer(({ children }) => (
-  <div>{children}</div>
-))
-
-const SortableItem = sortableElement(({ value }) => (
-  <PostComment mb={2}>{value}</PostComment>
-))
+// JP - 06/21/2022:
+// Refactored to better handle Loading, No Results and Has Results
+// Fixed crashing when no results or no comments
+// Also removed infinte render loop in useEffect / setComments
+// Improved Responsiveness of page
+// Added PostNavigation componment, attempts to use ids from the paged posts in previous view to correctly determine next/previous post Id. If not available navigation is hidden
+// TODO: Request Backend Team to add Next/Previous Post Ids to Post query
 
 function Post() {
-  const [comments, setComments] = useState([])
   const history = useHistory()
   const {
     params: { postId },
   } = useRouteMatch()
-
+  const location = useLocation()
   const handleClick = () => history.push(ROOT)
-
-  const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
-  }
-
   const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
 
-  const post = data?.post || {}
+  const htmlLoading = (
+    <Centered>
+      <h4>Loading...</h4>
+    </Centered>
+  )
+  const htmlHasResults = (
+    <PostDisplay
+      data={data ?? {}}
+      postId={postId}
+      posts={location?.state?.posts ?? []}
+    />
+  )
 
-  useEffect(() => {
-    setComments(post.comments?.data || [])
-  }, [post])
+  const htmlNoResults = (
+    <Centered>
+      <h3>Post Not Found</h3>
+    </Centered>
+  )
+
+  let content = ''
+
+  if (loading) {
+    content = htmlLoading
+  } else if (!loading && data?.post?.id === null) {
+    content = htmlNoResults
+  } else {
+    content = htmlHasResults
+  }
 
   return (
-    <Container>
-      <Column>
-        <Back onClick={handleClick}>Back</Back>
-      </Column>
-      {loading ? (
-        'Loading...'
-      ) : (
-        <>
-          <Column>
-            <h4>Need to add next/previous links</h4>
-            <PostContainer key={post.id}>
-              <h3>{post.title}</h3>
-              <PostAuthor>by {post.user.name}</PostAuthor>
-              <PostBody mt={2}>{post.body}</PostBody>
-            </PostContainer>
-            <div>Next/prev here</div>
-          </Column>
-
-          <Column>
-            <h4>Incorrect sorting</h4>
-            Comments:
-            <SortableContainer onSortEnd={handleSortEnd}>
-              {comments.map((comment, index) => (
-                <SortableItem
-                  index={index}
-                  key={comment.id}
-                  mb={3}
-                  value={comment.body}
-                />
-              ))}
-            </SortableContainer>
-          </Column>
-        </>
-      )}
-    </Container>
+    <>
+      <Container>
+        <Column>
+          <Back onClick={handleClick}>Back</Back>
+        </Column>
+      </Container>
+      <Container>{content}</Container>
+    </>
   )
 }
 

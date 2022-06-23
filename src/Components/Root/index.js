@@ -13,6 +13,10 @@ import { Column, Container, Post, PostAuthor, PostBody } from './styles'
 
 import ExpensiveTree from '../ExpensiveTree'
 
+// JP - 06/21/2022
+// Because data is missing from Post regarding what the next/prev id is from the server, I opted to pass the posts data to the post via it's state. I can then lookup the next/prev id from the returned list.
+// This was the only solution I could think of that wouldn't cause a bad experience by clicking next and finding no post found (due to post being deleted or db id skipping)
+
 function Root() {
   const [count, setCount] = useState(0)
   const [fields, setFields] = useState([
@@ -35,7 +39,7 @@ function Root() {
     }, 2500)
   }
 
-  const posts = data?.posts.data || []
+  const posts = data?.posts?.data ?? []
 
   return (
     <Container>
@@ -43,9 +47,17 @@ function Root() {
         <h4>Need to add pagination</h4>
         {loading
           ? 'Loading...'
-          : posts.map(post => (
-              <Post mx={4}>
-                <NavLink href={POST(post.id)} to={POST(post.id)}>
+          : posts.map((post, index) => (
+              <Post mx={4} key={index}>
+                <NavLink
+                  href={POST(post.id)}
+                  to={{
+                    pathname: POST(post.id),
+                    state: {
+                      posts: data?.posts?.data?.map(item => item.id) ?? [],
+                    },
+                  }}
+                >
                   {post.title}
                 </NavLink>
                 <PostAuthor>by {post.user.name}</PostAuthor>

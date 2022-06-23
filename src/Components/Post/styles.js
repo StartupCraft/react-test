@@ -4,20 +4,41 @@ import { margin } from '@styled-system/space'
 export const Container = styled.div`
   display: flex;
   flex: 1;
-  width: 100vw;
-  min-height: 100vh;
-  overflow: hidden;
+  width: auto;
   justify-content: space-between;
+
+  @media (max-width: 767px) {
+    display: block;
+    flex: 0;
+    flex: 0;
+    width: auto;
+  }
 `
 
 export const Column = styled.div`
-  width: 30%;
-  min-height: 100vh;
+  width: 50%;
   padding: 16px;
+  @media (max-width: 767px) {
+    width: auto;
+    min-width: 350px;
+  }
+`
+
+export const Centered = styled.div`
+  width: 100%;
+  text-align: center;
+`
+
+export const PrevButton = styled.button`
+  float: left;
+  margin-top: 16px;
+`
+export const NextButton = styled.button`
+  float: right;
+  margin-top: 16px;
 `
 
 export const PostContainer = styled.div`
-  width: 300px;
   border: 1px solid lightgray;
   border-radius: 8px;
   background: lightgray;
