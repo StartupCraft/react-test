@@ -8,19 +8,30 @@ export const Container = styled.div`
   min-height: 100vh;
   overflow: hidden;
   justify-content: space-between;
+
+  @media (max-width: 767px) {
+    display: block;
+    flex: 0;
+    flex: 0;
+    width: auto;
+  }
 `
 
 export const Column = styled.div`
   width: 30%;
-  min-height: 100vh;
   padding: 16px;
+
+  @media (max-width: 767px) {
+    width: auto;
+    min-width: 350px;
+  }
 `
 
 export const Post = styled.div.attrs({
   mx: 0,
   my: 3,
 })`
-  width: 300px;
+  width: auto;
   border: 1px solid lightgray;
   border-radius: 8px;
   background: lightgray;
