@@ -31,12 +31,11 @@ function Root() {
   const { data, loading } = useQuery(postsQuery)
 
   function handlePush() {
-    setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
+    setFields([...fields, { name: faker.name.findName(), id: nanoid() }])
   }
 
   useEffect(() => {
-    if (showAlert)
-    {
+    if (showAlert) {
       setShowAlert(false)
       alert(`You clicked ${count} times`)
       setAlertEnabled(true)
@@ -59,7 +58,7 @@ function Root() {
         {loading
           ? 'Loading...'
           : posts.map((post, index) => (
-              <Post mx={4} key={index}>
+              <Post key={index} mx={4}>
                 <NavLink
                   href={POST(post.id)}
                   to={{
