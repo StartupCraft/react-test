@@ -6,12 +6,19 @@ import { POST } from 'Router/routes'
 
 import { PrevButton, NextButton } from './styles'
 
-function PostNavigation({ nextId, previousId, posts }) {
+function PostNavigation({ postId, posts }) {
   const history = useHistory()
+  const currentIndex = posts?.findIndex(id => id === postId) ?? -1
+  const prevId =
+    currentIndex !== -1 && currentIndex > 0 ? posts[currentIndex - 1] : '-1'
+  const nextId =
+    currentIndex !== -1 && currentIndex < posts.length - 1
+      ? posts[currentIndex + 1]
+      : '-1'
 
   const onPreviousClicked = () => {
-    if (previousId !== -1) {
-      history.push(POST(previousId), { posts })
+    if (prevId !== -1) {
+      history.push(POST(prevId), { posts })
     }
   }
 
@@ -21,7 +28,7 @@ function PostNavigation({ nextId, previousId, posts }) {
     }
   }
 
-  const previousDisabled = posts.length === 0 || previousId === '-1'
+  const previousDisabled = posts.length === 0 || prevId === '-1'
   const nextDisabled = posts.length === 0 || nextId === '-1'
   const prevNextHidden = posts.length === 0
 
@@ -34,11 +41,7 @@ function PostNavigation({ nextId, previousId, posts }) {
       >
         Previous
       </PrevButton>
-      <NextButton
-        disabled={nextDisabled}
-        type="button"
-        onClick={onNextClicked}
-      >
+      <NextButton disabled={nextDisabled} type="button" onClick={onNextClicked}>
         Next
       </NextButton>
     </div>
@@ -46,9 +49,8 @@ function PostNavigation({ nextId, previousId, posts }) {
 }
 
 PostNavigation.propTypes = {
-  nextId: PropTypes.string.isRequired,
+  postId: PropTypes.string.isRequired,
   posts: PropTypes.array.isRequired,
-  previousId: PropTypes.string.isRequired,
 }
 
 export default PostNavigation
