@@ -1,6 +1,6 @@
 import Layout from 'Components/Layout'
-import Post from 'Components/Post'
-import Root from 'Components/Root'
+import Post from 'Views/Post'
+import Root from 'Views/Root'
 
 import { POST, ROOT } from './routes'
 
