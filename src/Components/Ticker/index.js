@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { DateTime } from 'luxon'
 import { Container } from './styles'
 
+// This code is suspect. Consult with design team about intended functionality
 function Ticker() {
   const testStart = useRef(DateTime.local())
   const [time, setTime] = useState(

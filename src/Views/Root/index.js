@@ -1,9 +1,9 @@
 import React from 'react'
-import PostsList from '../../PostList'
+import PostsList from '../../Components/PostList'
+import SlowRendering from '../../Components/SlowRendering'
+import Closures from '../../Components/Closures'
+import FieldBehavior from '../../Components/FieldBehavior'
 import { Column, Container } from './styles'
-import SlowRendering from '../../SlowRendering'
-import Closures from 'Components/Closures'
-import FieldBehavior from '../../FieldBehavior'
 
 function Root() {
   return (

@@ -27,8 +27,6 @@ function PostsList() {
 
   const posts = data?.posts?.data ?? []
 
-  console.log(data)
-
   return (
     <>
       <h4>Need to add pagination</h4>

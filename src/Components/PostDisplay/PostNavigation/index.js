@@ -1,10 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { useHistory } from 'react-router'
-
 import { POST } from 'Router/routes'
-
 import { PrevButton, NextButton } from './styles'
+
+/*
+ Usage: Past the current Post.Id {postId} and the array of PostIds {posts}
+ Because of limitations with the API we have no way of knowing the previous and next postId
+ Solution for now is to pass the list of Post.Ids from the previous list view.
+*/
 
 function PostNavigation({ postId, posts }) {
   const history = useHistory()

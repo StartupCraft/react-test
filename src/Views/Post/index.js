@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 import { useQuery } from '@apollo/client'
 import postQuery from 'GraphQL/Queries/post.graphql'
 import { ROOT } from 'Router/routes'
-import PostDisplay from '../../PostDisplay'
+import PostDisplay from '../../Components/PostDisplay'
 import { Back, Centered, Column, Container } from './styles'
 
 // JP - 06/21/2022:

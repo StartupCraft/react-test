@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { sortableContainer, sortableElement } from 'react-sortable-hoc'
 import arrayMove from 'array-move'
-
 import { PostComment } from './styles'
 
+// correct usage is arrayMove(input, fromIndex, toIndex) - Could not find any other issues with sorting
 function PostComments({ data }) {
   const [comments, setComments] = useState([])
   const SortableContainer = sortableContainer(({ children }) => (
@@ -20,8 +20,6 @@ function PostComments({ data }) {
   }, [data])
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    // JP - 06/21/2022:
-    // correct usage is arrayMove(input, fromIndex, toIndex)
     setComments(arrayMove(comments, oldIndex, newIndex))
   }
 
