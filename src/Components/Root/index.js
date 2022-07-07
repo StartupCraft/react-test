@@ -23,7 +23,13 @@ function Root() {
   ])
 
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const [page, setPage] = useState(1)
+  const { data, loading, fetchMore } = useQuery(postsQuery, {
+    variables: {
+      limit: 3,
+      page: 1,
+    },
+  })
 
   function handlePush() {
     setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
@@ -52,7 +58,52 @@ function Root() {
                 <PostBody>{post.body}</PostBody>
               </Post>
             ))}
-        <div>Pagination here</div>
+
+        <button
+          disabled={page === 1}
+          type="button"
+          onClick={() =>
+            fetchMore({
+              variables: {
+                page: page - 1,
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                setPage(page - 1)
+                if (!fetchMoreResult) return prev
+                return {
+                  posts: {
+                    ...prev.posts,
+                    data: [...fetchMoreResult.posts.data],
+                  },
+                }
+              },
+            })
+          }
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          onClick={() =>
+            fetchMore({
+              variables: {
+                page: page + 1,
+              },
+              updateQuery: (prev, { fetchMoreResult }) => {
+                setPage(page + 1)
+                if (!fetchMoreResult) return prev
+                return {
+                  posts: {
+                    ...prev.posts,
+                    data: [...fetchMoreResult.posts.data],
+                  },
+                }
+              },
+            })
+          }
+        >
+          NEXT
+        </button>
       </Column>
       <Column>
         <h4>Slow rendering</h4>
