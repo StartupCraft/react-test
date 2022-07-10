@@ -30,6 +30,7 @@ const SortableItem = sortableElement(({ value }) => (
 function Post() {
   const [comments, setComments] = useState([])
   const history = useHistory()
+
   const {
     params: { postId },
   } = useRouteMatch()
@@ -37,15 +38,17 @@ function Post() {
   const handleClick = () => history.push(ROOT)
 
   const handleSortEnd = ({ oldIndex, newIndex }) => {
-    setComments(arrayMove(comments, newIndex, oldIndex))
+    setComments(arrayMove(comments, oldIndex, newIndex))
   }
-
-  const { data, loading } = useQuery(postQuery, { variables: { id: postId } })
+  const [page, setPage] = useState(parseInt(postId,10))
+  const { data, loading, fetchMore } = useQuery(postQuery, { variables: { id: page } })
 
   const post = data?.post || {}
 
   useEffect(() => {
-    setComments(post.comments?.data || [])
+    if (!loading) {
+      setComments(post.comments?.data || [])
+    }
   }, [post])
 
   return (
@@ -65,6 +68,26 @@ function Post() {
               <PostBody mt={2}>{post.body}</PostBody>
             </PostContainer>
             <div>Next/prev here</div>
+            <button 
+            disabled={loading}
+            onClick={
+              () => {
+                history.replace(`/posts/${parseInt(postId, 10) + 1}`)
+                // fetchMore()
+                setPage(page + 1)
+              }
+            } type="button">Next</button>
+            <button type="button"
+            disabled={loading}
+            onClick={
+              () => {
+                // fetchMore()
+                if(page-1!==0){
+                  history.replace(`/posts/${parseInt(postId, 10) -1}`)
+                  setPage(page -1)
+                }
+              }
+            }>Prev</button>
           </Column>
 
           <Column>
