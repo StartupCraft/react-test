@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 
-import { useQuery } from '@apollo/client'
+import { useQuery, useLazyQuery } from '@apollo/client'
 import faker from 'faker'
 import { nanoid } from 'nanoid'
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import postsQuery from 'GraphQL/Queries/posts.graphql'
 
@@ -21,12 +22,25 @@ function Root() {
       id: nanoid(),
     },
   ])
-
+  const [pageNo, setPageNo] = useState(1)
+  const [limit, setLimit] = useState(10)
   const [value, setValue] = useState('')
-  const { data, loading } = useQuery(postsQuery)
+  const [getPosts, { data, loading, fetchMore }] = useLazyQuery(postsQuery, { page: pageNo, limit: 100 })
+  const [postData, setPostData] = useState([])
 
+  useEffect(() => {
+
+    if (!loading && data) {
+      const postFromApi = {};
+
+      [...postData, ...data?.posts.data].forEach(item => {
+        postFromApi[item.id] = item
+      })
+      setPostData(Object.values(postFromApi))
+    }
+  }, [loading, data])
   function handlePush() {
-    setFields([{ name: faker.name.findName(), id: nanoid() }, ...fields])
+    setFields([...fields, { name: faker.name.findName(), id: nanoid() },])
   }
 
   function handleAlertClick() {
@@ -34,25 +48,46 @@ function Root() {
       alert(`You clicked ${count} times`)
     }, 2500)
   }
-
+  useEffect(() => {
+    getPosts({
+      variables: {
+        page: pageNo,
+        limit: 10
+      }
+    })
+  }, [pageNo])
   const posts = data?.posts.data || []
 
+  const getMorePosts = () => {
+    if (!loading && postData.length) {
+      setPageNo(pageNo + 1)
+    }
+  }
+  // console.log("🚀 ~ file: index.js ~ line 58 ~ getMorePosts ~ loading", loading);
+  console.log("🚀 ~ file: index.js ~ line 58 ~ getMorePosts ~ postData.length", postData.length);
+  // console.log("🚀 ~ file: index.js ~ line 69 ~ Root ~ postData.length+limit!==data?.posts.totalCount", postData.length+limit!==data?.posts.totalCount);
   return (
     <Container>
       <Column>
         <h4>Need to add pagination</h4>
-        {loading
-          ? 'Loading...'
-          : posts.map(post => (
-              <Post mx={4}>
-                <NavLink href={POST(post.id)} to={POST(post.id)}>
-                  {post.title}
-                </NavLink>
-                <PostAuthor>by {post.user.name}</PostAuthor>
-                <PostBody>{post.body}</PostBody>
-              </Post>
-            ))}
+        <InfiniteScroll
+          dataLength={postData.length}
+          next={getMorePosts}
+          hasMore={postData.length !== data?.posts?.meta.totalCount}
+          loader={<h4>Loading...</h4>}
+        >
+          {postData.map(post => (
+            <Post mx={4}>
+              <NavLink href={POST(post.id)} to={POST(post.id)}>
+                {post.title}
+              </NavLink>
+              <PostAuthor>by {post.user.name}</PostAuthor>
+              <PostBody>{post.body}</PostBody>
+            </Post>
+          ))}
+        </InfiniteScroll>
         <div>Pagination here</div>
+      
       </Column>
       <Column>
         <h4>Slow rendering</h4>
@@ -61,7 +96,7 @@ function Root() {
           <br />
           <input
             value={value}
-            onChange={({ target }) => setValue(target.value)}
+            onChange={(e) => setValue(e.target.value)}
           />
         </label>
         <p>So slow...</p>
@@ -91,7 +126,7 @@ function Root() {
           ))}
         </ol>
       </Column>
-    </Container>
+    </Container >
   )
 }
 
